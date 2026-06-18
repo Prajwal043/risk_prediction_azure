@@ -62,9 +62,7 @@ yarn-debug.log*
 yarn-error.log*
 
 # React Build Files
-build/
 dist/
-frontend/build/
 frontend/dist/
 
 # =========================
