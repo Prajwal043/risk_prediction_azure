@@ -1,0 +1,778 @@
+# Intelligent Change Risk Prediction System
+
+### End-to-End Data Science + MLOps + Full Stack Project
+
+---
+
+# 1. Business Problem
+
+### Problem Statement
+
+In software companies, deployments frequently fail due to:
+
+* Large number of files changed
+* Too many dependencies
+* Poor testing
+* Inexperienced engineers
+* Night-time deployments
+* Database changes
+
+A failed deployment can result in:
+
+* Service outages
+* Revenue loss
+* Customer dissatisfaction
+* Emergency rollbacks
+
+### Goal
+
+Build an AI system that predicts:
+
+> "Will this deployment fail before it goes live?"
+
+and provide:
+
+* Failure Probability
+* Risk Level
+* Risk Factors
+* Explainability
+
+---
+
+# 2. Project Architecture
+
+```text
+Deployment Request
+        │
+        ▼
+Feature Engineering
+        │
+        ▼
+Preprocessing Pipeline
+        │
+        ▼
+ML Model
+(XGBoost)
+        │
+        ▼
+SHAP Explainability
+        │
+        ▼
+FastAPI Backend
+        │
+        ▼
+PostgreSQL
+        │
+        ▼
+React Dashboard
+```
+
+---
+
+# 3. Dataset Creation
+
+Since real deployment data was unavailable:
+
+### Synthetic Dataset Generated
+
+Rows:
+
+```text
+10,000
+```
+
+Features:
+
+| Feature             | Description               |
+| ------------------- | ------------------------- |
+| systems_impacted    | Systems affected          |
+| num_files_changed   | Number of files modified  |
+| deployment_hour     | Deployment time           |
+| deployment_day      | Deployment day            |
+| engineer_experience | Experience in years       |
+| historical_failures | Previous failures         |
+| dependency_count    | Dependencies impacted     |
+| rollback_required   | Previous rollback history |
+| test_coverage       | Test coverage percentage  |
+| change_type         | Database/App/Config etc   |
+
+Target:
+
+```text
+change_failed
+
+0 = Success
+1 = Failure
+```
+
+---
+
+# 4. Failure Logic
+
+Synthetic risk formula:
+
+```python
+risk_score = (
+    dependency_count * 2
+    + historical_failures * 3
+    + systems_impacted
+)
+```
+
+Additional risk:
+
+* Low test coverage
+* Night deployment
+* Weekend deployment
+* Database change
+* Junior engineer
+
+Converted to:
+
+```text
+Failure Probability
+```
+
+using sigmoid function.
+
+---
+
+# 5. Exploratory Data Analysis
+
+Questions Answered:
+
+### Which deployment hours fail most?
+
+Bar Chart
+
+Find:
+
+```text
+Night deployments
+have higher failure rates
+```
+
+---
+
+### Does test coverage matter?
+
+Box Plot
+
+Find:
+
+```text
+Failed deployments
+typically have lower
+test coverage
+```
+
+---
+
+### Failure Rate by Day
+
+Find:
+
+```text
+Friday and weekend
+deployments are riskier
+```
+
+---
+
+### Correlation Heatmap
+
+Find strongest predictors:
+
+```text
+Dependency Count
+Historical Failures
+Test Coverage
+```
+
+Generated:
+
+```text
+eda_report.pdf
+```
+
+---
+
+# 6. Feature Engineering
+
+Created:
+
+### Complexity Score
+
+```python
+complexity_score =
+systems_impacted *
+dependency_count
+```
+
+Measures deployment complexity.
+
+---
+
+### After Hours Flag
+
+```python
+deployment_hour > 18
+```
+
+Output:
+
+```text
+after_hours
+```
+
+---
+
+### Weekend Flag
+
+```python
+Saturday
+Sunday
+```
+
+Output:
+
+```text
+weekend_deployment
+```
+
+---
+
+### One-Hot Encoding
+
+Converted:
+
+```text
+Database
+Infrastructure
+Application
+Configuration
+```
+
+into ML-friendly features.
+
+---
+
+# 7. Data Preprocessing
+
+Built reusable pipeline.
+
+### Numerical
+
+```python
+StandardScaler()
+```
+
+---
+
+### Categorical
+
+```python
+OneHotEncoder()
+```
+
+---
+
+### Combined
+
+```python
+ColumnTransformer()
+```
+
+Output:
+
+```text
+X_train
+X_test
+```
+
+---
+
+# 8. Machine Learning Models
+
+## Baseline
+
+### Logistic Regression
+
+Used as benchmark.
+
+Evaluated:
+
+* Accuracy
+* Precision
+* Recall
+* F1
+* ROC-AUC
+
+---
+
+## Advanced Models
+
+### Random Forest
+
+Captures nonlinear relationships.
+
+---
+
+### XGBoost
+
+Gradient boosting model.
+
+Best performer.
+
+---
+
+### LightGBM (Optional)
+
+Faster boosting alternative.
+
+---
+
+## Model Comparison
+
+| Model               | ROC-AUC |
+| ------------------- | ------- |
+| Logistic Regression | 0.82    |
+| Random Forest       | 0.90    |
+| XGBoost             | 0.94    |
+
+Selected:
+
+```text
+XGBoost
+```
+
+---
+
+# 9. Hyperparameter Tuning
+
+Used:
+
+```python
+RandomizedSearchCV
+```
+
+Tuned:
+
+```text
+max_depth
+n_estimators
+learning_rate
+```
+
+Saved:
+
+```text
+best_xgboost.pkl
+```
+
+---
+
+# 10. Explainability
+
+Used:
+
+```python
+SHAP
+```
+
+---
+
+## Global Explanation
+
+Answers:
+
+> What generally causes deployment failures?
+
+Top factors:
+
+```text
+1. Dependency Count
+2. Historical Failures
+3. Test Coverage
+4. Complexity Score
+5. Deployment Hour
+```
+
+---
+
+## Local Explanation
+
+For a single deployment:
+
+Prediction:
+
+```text
+89% Failure Risk
+```
+
+Reasons:
+
+```text
++ High dependency count
++ Night deployment
++ Low test coverage
+```
+
+---
+
+# 11. Experiment Tracking
+
+Used:
+
+```text
+MLflow
+```
+
+Tracked:
+
+### Parameters
+
+```text
+Model Type
+Model Version
+```
+
+---
+
+### Metrics
+
+```text
+Accuracy
+F1
+ROC-AUC
+```
+
+---
+
+### Artifacts
+
+```text
+best_xgboost.pkl
+```
+
+Benefits:
+
+* Reproducibility
+* Versioning
+* Audit trail
+
+---
+
+# 12. Backend API
+
+Framework:
+
+```text
+FastAPI
+```
+
+Endpoint:
+
+```http
+POST /predict
+```
+
+Input:
+
+```json
+{
+  "systems_impacted": 12,
+  "dependency_count": 5
+}
+```
+
+Output:
+
+```json
+{
+  "risk_score": 0.79,
+  "risk": "HIGH"
+}
+```
+
+---
+
+# 13. Database
+
+Database:
+
+```text
+PostgreSQL
+```
+
+---
+
+## Deployments Table
+
+Stores:
+
+```text
+deployment_id
+risk_score
+prediction
+timestamp
+```
+
+---
+
+## Model Versions Table
+
+Stores:
+
+```text
+model_version
+accuracy
+created_at
+```
+
+---
+
+# 14. Frontend
+
+Framework:
+
+```text
+React
+```
+
+Dashboard includes:
+
+### KPIs
+
+```text
+Total Deployments
+Average Risk
+Failure Rate
+```
+
+---
+
+### Prediction Form
+
+Inputs:
+
+```text
+Systems Impacted
+Files Changed
+Dependencies
+Coverage
+```
+
+Button:
+
+```text
+Predict
+```
+
+Output:
+
+```text
+Failure Probability
+Risk Level
+Top Risk Factors
+```
+
+---
+
+### Analytics
+
+Charts:
+
+```text
+Risk Distribution
+Historical Failures
+Top Risk Factors
+```
+
+---
+
+# 15. Dockerization
+
+Created:
+
+### API Dockerfile
+
+Containerized FastAPI.
+
+---
+
+### Frontend Dockerfile
+
+Containerized React.
+
+Commands:
+
+```bash
+docker build
+docker run
+```
+
+Benefits:
+
+```text
+Works Anywhere
+Consistent Environment
+Easy Deployment
+```
+
+---
+
+# 16. CI/CD
+
+Tool:
+
+```text
+GitHub Actions
+```
+
+Pipeline:
+
+```text
+Push Code
+     ↓
+Run Tests
+     ↓
+Train Model
+     ↓
+Build Docker Image
+     ↓
+Deploy
+```
+
+Automated workflow.
+
+---
+
+# 17. Cloud Deployment Architecture
+
+Azure-based design:
+
+```text
+React Frontend
+      │
+      ▼
+Azure App Service
+(FastAPI)
+      │
+      ├────────► Azure PostgreSQL
+      │
+      └────────► Azure Blob Storage
+```
+
+---
+
+## Azure Services
+
+### App Service
+
+Hosts FastAPI.
+
+---
+
+### Azure PostgreSQL
+
+Stores:
+
+```text
+Predictions
+Model Metadata
+```
+
+---
+
+### Azure Blob Storage
+
+Stores:
+
+```text
+best_xgboost.pkl
+preprocessor.pkl
+```
+
+---
+
+# Technologies Used
+
+### Programming
+
+```text
+Python
+JavaScript
+```
+
+### Data Science
+
+```text
+Pandas
+NumPy
+Scikit-Learn
+```
+
+### ML
+
+```text
+Logistic Regression
+Random Forest
+XGBoost
+LightGBM
+```
+
+### Explainability
+
+```text
+SHAP
+```
+
+### Experiment Tracking
+
+```text
+MLflow
+```
+
+### Backend
+
+```text
+FastAPI
+```
+
+### Database
+
+```text
+PostgreSQL
+SQLAlchemy
+```
+
+### Frontend
+
+```text
+React
+Recharts
+```
+
+### DevOps
+
+```text
+Docker
+GitHub Actions
+```
+
+### Cloud
+
+```text
+Azure App Service
+Azure Blob Storage
+Azure PostgreSQL
+```
+
+---
+
+# 2-Minute Interview Summary
+
+> I built an end-to-end Intelligent Change Risk Prediction system that predicts whether a software deployment is likely to fail before it is released. Since real deployment data wasn't available, I generated a synthetic dataset of 10,000 deployment records using realistic risk patterns. I performed EDA, engineered deployment-specific features like complexity score, after-hours flag, and weekend deployment indicators, and built multiple ML models including Logistic Regression, Random Forest, and XGBoost. After hyperparameter tuning, XGBoost achieved the best ROC-AUC and was selected as the final model.
+>
+> I used SHAP for explainability, allowing both global and deployment-level risk explanations. The model was tracked using MLflow, exposed through a FastAPI REST API, persisted predictions in PostgreSQL, and integrated with a React dashboard for visualization and risk assessment. The entire solution was containerized using Docker and designed for CI/CD with GitHub Actions and cloud deployment on Azure App Service with Azure Blob Storage and PostgreSQL. This project demonstrates the complete ML lifecycle from data generation and modeling to deployment, monitoring, and MLOps.
